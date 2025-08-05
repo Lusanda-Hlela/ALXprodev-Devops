@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Array of Pokémon names to fetch
+POKEMONS=("Bulbasaur" "Ivysaur" "Venusaur" "Charmander" "Charmeleon")
+
+# Function to fetch Pokémon data
+fetch_pokemon() {
+  local name=$1
+  echo "Fetching data for $name..."
+  curl -s "https://pokeapi.co/api/v2/pokemon/${name,,}" -o "${name}.json"
+  if [ $? -eq 0 ]; then
+    echo "Successfully fetched $name"
+  else
+    echo "Failed to fetch $name"
+  fi
+}
+
+# Export function if needed (for parallel execution)
+export -f fetch_pokemon
+
+# Loop to fetch all Pokémon in parallel
+for pokemon in "${POKEMONS[@]}"; do
+  fetch_pokemon "$pokemon" &
+done
+
+# Wait for all background processes to finish
+wait
+
+echo "All Pokémon data fetched."
